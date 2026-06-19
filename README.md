@@ -36,6 +36,29 @@ npm run build
 npm run preview
 ```
 
+## Deploying to Netlify
+
+This repo includes a `netlify.toml`, so deploys work with zero extra setup.
+
+**Option A – connect the repo (recommended):**
+
+1. Push to GitHub (already done for this project).
+2. In Netlify, choose **Add new site → Import an existing project** and pick the
+   `ruqqa-bottleneck` repo.
+3. Netlify reads `netlify.toml` and uses build command `npm run build` and
+   publish directory `dist` automatically. Click **Deploy**.
+
+**Option B – deploy from your machine with the Netlify CLI:**
+
+```bash
+npm install -g netlify-cli
+netlify login
+npm run build
+netlify deploy --prod    # publishes the dist/ folder
+```
+
+Every push to the connected branch triggers a fresh build and deploy.
+
 ## How to use
 
 1. **Speed** – the slider fast-forwards gym time (default 10×) so a 60-minute

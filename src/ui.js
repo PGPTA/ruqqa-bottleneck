@@ -26,8 +26,8 @@ export function initUI(sim) {
   let routines = {
     'Full circuit': { name: 'Full circuit', steps: [
       { type: 'versaClimber', minutes: 4 },
-      { type: 'boxStep', minutes: 4 },
       { type: 'bench', minutes: 4 },
+      { type: 'boxStep', minutes: 4 },
       { type: 'walkingLunge', minutes: 3 },
       { type: 'elephantWalk', minutes: 3 },
       { type: 'track', distance: 400 },
