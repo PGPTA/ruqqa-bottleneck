@@ -46,44 +46,34 @@ let G = null;
 
 function getShared() {
   if (!G) {
+    // clean low-poly parts: tapered "bone" cylinders capped by sphere joints,
+    // flat-shaded for a crisp stylized game-character look.
     G = {
-      head: new THREE.SphereGeometry(0.15, 20, 16),
-      hair: new THREE.SphereGeometry(0.158, 18, 14),
-      hairBack: new THREE.SphereGeometry(0.14, 16, 12),
-      ponytail: new THREE.CapsuleGeometry(0.052, 0.26, 6, 12),
-      nose: new THREE.SphereGeometry(0.028, 8, 6),
-      eye: new THREE.SphereGeometry(0.017, 8, 6),
-      brow: new THREE.BoxGeometry(0.05, 0.012, 0.02),
-      ear: new THREE.SphereGeometry(0.03, 8, 8),
-      thumb: new THREE.CapsuleGeometry(0.02, 0.05, 4, 8),
-      neck: new THREE.CylinderGeometry(0.055, 0.07, 0.11, 12),
-      torso: new THREE.CapsuleGeometry(0.19, 0.34, 10, 18),
-      abdomen: new THREE.SphereGeometry(0.155, 14, 12),
-      pelvis: new THREE.SphereGeometry(0.18, 16, 12),
-      bust: new THREE.SphereGeometry(0.072, 12, 10),
-      shoulder: new THREE.SphereGeometry(0.095, 14, 12),
-      thigh: new THREE.CapsuleGeometry(0.105, 0.3, 10, 16),
-      shin: new THREE.CapsuleGeometry(0.08, 0.3, 10, 16),
-      calf: new THREE.SphereGeometry(0.085, 12, 10),
-      kneeCap: new THREE.SphereGeometry(0.082, 12, 10),
-      ankleBall: new THREE.SphereGeometry(0.062, 12, 10),
-      foot: new THREE.CapsuleGeometry(0.062, 0.17, 6, 12), // rounded heel→toe
-      sole: new THREE.BoxGeometry(0.135, 0.05, 0.32),
-      midsole: new THREE.BoxGeometry(0.13, 0.055, 0.3),
-      shoeUpper: new THREE.SphereGeometry(0.075, 14, 12),
-      toeCap: new THREE.SphereGeometry(0.062, 14, 12),
-      heelCup: new THREE.SphereGeometry(0.064, 14, 12),
-      lace: new THREE.BoxGeometry(0.08, 0.018, 0.03),
-      toesBare: new THREE.SphereGeometry(0.055, 12, 10),
-      upperArm: new THREE.CapsuleGeometry(0.07, 0.2, 10, 16),
-      foreArm: new THREE.CapsuleGeometry(0.055, 0.2, 10, 16),
-      elbowBall: new THREE.SphereGeometry(0.062, 12, 10),
-      palm: new THREE.BoxGeometry(0.075, 0.11, 0.045),
-      fingers: new THREE.CapsuleGeometry(0.036, 0.06, 4, 10),
-      packBody: new THREE.BoxGeometry(0.34, 0.46, 0.2),
-      packLid: new THREE.BoxGeometry(0.32, 0.16, 0.18),
-      packPocket: new THREE.BoxGeometry(0.22, 0.22, 0.1),
-      strap: new THREE.BoxGeometry(0.055, 0.44, 0.05),
+      head: new THREE.SphereGeometry(0.17, 12, 10),
+      hairCap: new THREE.SphereGeometry(0.183, 12, 9),
+      hairBack: new THREE.SphereGeometry(0.16, 10, 8),
+      ponytail: new THREE.ConeGeometry(0.075, 0.36, 8),
+      eye: new THREE.SphereGeometry(0.024, 8, 6),
+      nose: new THREE.ConeGeometry(0.03, 0.06, 6),
+      neck: new THREE.CylinderGeometry(0.06, 0.072, 0.12, 10),
+      torso: new THREE.CylinderGeometry(0.2, 0.135, 0.5, 12),
+      chest: new THREE.SphereGeometry(0.2, 12, 9),
+      waist: new THREE.SphereGeometry(0.145, 10, 8),
+      pelvis: new THREE.CylinderGeometry(0.16, 0.14, 0.22, 12),
+      bust: new THREE.SphereGeometry(0.078, 10, 8),
+      shoulderBall: new THREE.SphereGeometry(0.088, 10, 8),
+      joint: new THREE.SphereGeometry(0.066, 10, 8),
+      upperArm: new THREE.CylinderGeometry(0.064, 0.05, 0.32, 8),
+      foreArm: new THREE.CylinderGeometry(0.05, 0.04, 0.3, 8),
+      hand: new THREE.SphereGeometry(0.072, 9, 7),
+      thigh: new THREE.CylinderGeometry(0.1, 0.072, 0.44, 10),
+      shin: new THREE.CylinderGeometry(0.072, 0.052, 0.42, 10),
+      footSole: new THREE.BoxGeometry(0.12, 0.07, 0.3),
+      footToe: new THREE.SphereGeometry(0.074, 10, 8),
+      midsole: new THREE.BoxGeometry(0.13, 0.03, 0.32),
+      packBody: new THREE.BoxGeometry(0.32, 0.42, 0.18),
+      packLid: new THREE.BoxGeometry(0.3, 0.14, 0.16),
+      strap: new THREE.BoxGeometry(0.05, 0.4, 0.05),
     };
   }
   return G;
@@ -105,25 +95,25 @@ export class NPC {
       : { shoulderX: 0.255, hip: 0.92, arm: 1.16, torsoW: 1.46, torsoD: 0.85, height: 1.05 };
     this.group.scale.setScalar(B.height);
 
-    // materials: natural skin, wave-coloured top, dark bottoms, grey shoes, hair
-    const skin = new THREE.MeshStandardMaterial({ color: SKIN_TONES[(Math.random() * SKIN_TONES.length) | 0], roughness: 0.62, metalness: 0 });
-    const top = new THREE.MeshStandardMaterial({ color, roughness: 0.62, metalness: 0.04 });
-    const bottom = new THREE.MeshStandardMaterial({ color: BOTTOM_COLOR, roughness: 0.78, metalness: 0.02 });
-    const shoe = new THREE.MeshStandardMaterial({ color: SHOE_COLOR, roughness: 0.5, metalness: 0.12 });
-    const soleMat = new THREE.MeshStandardMaterial({ color: 0x111316, roughness: 0.7, metalness: 0.05 });
-    const midsoleMat = new THREE.MeshStandardMaterial({ color: 0xe7ebef, roughness: 0.55, metalness: 0.05 });
-    const hairMat = new THREE.MeshStandardMaterial({ color: HAIR_TONES[(Math.random() * HAIR_TONES.length) | 0], roughness: 0.9 });
+    // stylized materials: flat-shaded facets, a clean limited palette
+    const fs = { flatShading: true };
+    const skin = new THREE.MeshStandardMaterial({ color: SKIN_TONES[(Math.random() * SKIN_TONES.length) | 0], roughness: 0.78, metalness: 0, ...fs });
+    const top = new THREE.MeshStandardMaterial({ color, roughness: 0.65, metalness: 0.02, ...fs });
+    const bottom = new THREE.MeshStandardMaterial({ color: BOTTOM_COLOR, roughness: 0.8, metalness: 0.02, ...fs });
+    const shoe = new THREE.MeshStandardMaterial({ color: SHOE_COLOR, roughness: 0.55, metalness: 0.08, ...fs });
+    const midsoleMat = new THREE.MeshStandardMaterial({ color: 0xeef1f4, roughness: 0.6, metalness: 0.02, ...fs });
+    const hairMat = new THREE.MeshStandardMaterial({ color: HAIR_TONES[(Math.random() * HAIR_TONES.length) | 0], roughness: 0.95, ...fs });
     const packCol = PACK_COLORS[(Math.random() * PACK_COLORS.length) | 0];
-    const packMat = new THREE.MeshStandardMaterial({ color: packCol, roughness: 0.82, metalness: 0.08 });
-    const strapMat = new THREE.MeshStandardMaterial({ color: 0x202327, roughness: 0.9, metalness: 0.05 });
-    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x16181c, roughness: 0.35, metalness: 0.1 });
-    this._mats = [skin, top, bottom, shoe, soleMat, midsoleMat, hairMat, packMat, strapMat, eyeMat];
+    const packMat = new THREE.MeshStandardMaterial({ color: packCol, roughness: 0.85, metalness: 0.06, ...fs });
+    const strapMat = new THREE.MeshStandardMaterial({ color: 0x202327, roughness: 0.9, metalness: 0.04, ...fs });
+    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x14161a, roughness: 0.3, metalness: 0.1 });
+    this._mats = [skin, top, bottom, shoe, midsoleMat, hairMat, packMat, strapMat, eyeMat];
     this.bodyMat = top;
 
-    // hips (clothed waistband) stay with the legs; upper body leans at the waist
+    // hips (dark shorts/leggings) stay with the legs; the upper body leans
     const pelvis = new THREE.Mesh(g.pelvis, bottom);
-    pelvis.position.y = 0.88;
-    pelvis.scale.set(1.18 * B.hip, 0.78, 0.82);
+    pelvis.position.y = 0.86;
+    pelvis.scale.set(1.06 * B.hip, 1, 0.82);
     pelvis.castShadow = true;
     this.group.add(pelvis);
 
@@ -132,167 +122,111 @@ export class NPC {
     this.group.add(upper);
     this.upper = upper;
 
-    // midriff connector: bare skin for women (sports bra), top colour for men
-    const abdomen = new THREE.Mesh(g.abdomen, female ? skin : top);
-    abdomen.position.y = 0.02;
-    abdomen.scale.set(B.torsoW * 0.86, 0.7, B.torsoD);
-    abdomen.castShadow = true;
-    upper.add(abdomen);
-
-    // torso = workout top (tank top / sports bra) in the wave colour
+    // torso: a tapered "V" trunk (broad chest → narrow waist) in the top colour
     const torso = new THREE.Mesh(g.torso, top);
-    torso.position.y = 0.26;
+    torso.position.y = 0.24;
     torso.scale.set(B.torsoW, 1, B.torsoD);
     torso.castShadow = true;
     upper.add(torso);
 
+    // round the chest top and the waist so the cylinder reads as a body
+    const chest = new THREE.Mesh(g.chest, top);
+    chest.position.y = 0.45;
+    chest.scale.set(B.torsoW * 0.92, 0.62, B.torsoD * 0.95);
+    chest.castShadow = true;
+    upper.add(chest);
+
+    const waist = new THREE.Mesh(g.waist, female ? skin : top);
+    waist.position.y = 0.02;
+    waist.scale.set(B.torsoW * 0.92, 0.85, B.torsoD * 0.95);
+    upper.add(waist);
+
     if (female) {
-      for (const sx of [-0.075, 0.075]) {
+      for (const sx of [-0.07, 0.07]) {
         const bust = new THREE.Mesh(g.bust, top);
-        bust.position.set(sx, 0.28, 0.13);
-        bust.scale.set(1, 0.85, 0.8);
+        bust.position.set(sx, 0.3, 0.12);
+        bust.scale.set(1, 0.85, 0.85);
         upper.add(bust);
-      }
-    } else {
-      // subtle pectorals for a more athletic male chest
-      for (const sx of [-0.085, 0.085]) {
-        const pec = new THREE.Mesh(g.bust, top);
-        pec.position.set(sx, 0.32, 0.12);
-        pec.scale.set(1.25, 0.7, 0.7);
-        upper.add(pec);
       }
     }
 
-    // trapezius blending the neck into the shoulders
-    const traps = new THREE.Mesh(g.bust, top);
-    traps.position.set(0, 0.45, -0.04);
-    traps.scale.set(B.torsoW * 2.2, 0.9, 1.3);
-    upper.add(traps);
-
     const neck = new THREE.Mesh(g.neck, skin);
-    neck.position.set(0, 0.5, 0.01);
+    neck.position.set(0, 0.52, 0.0);
     neck.castShadow = true;
     upper.add(neck);
 
     const head = new THREE.Mesh(g.head, skin);
-    head.position.set(0, 0.64, 0.02);
-    head.scale.set(0.94, 1.08, 0.98); // slightly narrower jaw
+    head.position.set(0, 0.68, 0.015);
+    head.scale.set(0.95, 1.04, 0.97);
     head.castShadow = true;
     upper.add(head);
 
-    // jaw/chin taper for a less spherical face
-    const jaw = new THREE.Mesh(g.head, skin);
-    jaw.position.set(0, 0.575, 0.04);
-    jaw.scale.set(0.72, 0.6, 0.78);
-    upper.add(jaw);
-
+    // simple stylized face: two eyes and a small nose
+    for (const ex of [-0.058, 0.058]) {
+      const eye = new THREE.Mesh(g.eye, eyeMat);
+      eye.position.set(ex, 0.665, 0.15);
+      eye.scale.set(0.8, 1.15, 0.6);
+      upper.add(eye);
+    }
     const nose = new THREE.Mesh(g.nose, skin);
-    nose.position.set(0, 0.625, 0.155);
-    nose.scale.set(0.8, 1.1, 1.1);
+    nose.position.set(0, 0.625, 0.165);
+    nose.rotation.x = Math.PI / 2;
     upper.add(nose);
 
-    // eyes + brows
-    for (const ex of [-0.052, 0.052]) {
-      const eye = new THREE.Mesh(g.eye, eyeMat);
-      eye.position.set(ex, 0.66, 0.135);
-      upper.add(eye);
-      const brow = new THREE.Mesh(g.brow, hairMat);
-      brow.position.set(ex, 0.685, 0.142);
-      upper.add(brow);
-    }
-
-    // ears tucked at the sides of the head
-    for (const ex of [-0.146, 0.146]) {
-      const ear = new THREE.Mesh(g.ear, skin);
-      ear.position.set(ex, 0.645, 0.0);
-      ear.scale.set(0.6, 1, 0.9);
-      upper.add(ear);
-    }
-
-    // hair: a crown dome that sits on the skull, a fuller back mass and a
-    // small front fringe so the face (front-lower) stays exposed.
-    const crown = new THREE.Mesh(g.hair, hairMat);
-    crown.position.set(0, 0.715, -0.03);
-    crown.scale.set(1.06, female ? 0.92 : 0.72, 1.12);
-    crown.castShadow = true;
-    upper.add(crown);
-
-    const backHair = new THREE.Mesh(g.hairBack, hairMat);
-    backHair.position.set(0, 0.63, -0.11);
-    backHair.scale.set(1.12, female ? 1.35 : 0.96, 1.02);
-    backHair.castShadow = true;
-    upper.add(backHair);
-
-    const fringe = new THREE.Mesh(g.hairBack, hairMat);
-    fringe.position.set(0, 0.725, 0.07);
-    fringe.scale.set(1.02, 0.46, 0.66);
-    upper.add(fringe);
+    // hair: a clean faceted cap over the crown/back, leaving the face clear
+    const cap = new THREE.Mesh(g.hairCap, hairMat);
+    cap.position.set(0, 0.735, -0.02);
+    cap.scale.set(1.04, female ? 0.86 : 0.74, 1.08);
+    cap.castShadow = true;
+    upper.add(cap);
 
     if (female) {
-      // hair gathered into a tie, then a ponytail falling down the back
-      const tieBase = new THREE.Mesh(g.hairBack, hairMat);
-      tieBase.position.set(0, 0.6, -0.17);
-      tieBase.scale.set(0.66, 0.66, 0.66);
-      tieBase.castShadow = true;
-      upper.add(tieBase);
+      const backHair = new THREE.Mesh(g.hairBack, hairMat);
+      backHair.position.set(0, 0.66, -0.1);
+      backHair.scale.set(1.05, 1.3, 1.0);
+      backHair.castShadow = true;
+      upper.add(backHair);
       const tail = new THREE.Mesh(g.ponytail, hairMat);
-      tail.position.set(0, 0.5, -0.21);
-      tail.rotation.x = 0.42;
+      tail.position.set(0, 0.52, -0.2);
+      tail.rotation.x = 0.4;
       tail.castShadow = true;
       upper.add(tail);
     }
 
-    // tactical-style backpack on the upper back (leans with the torso)
+    // clean low-poly daypack on the upper back (leans with the torso)
     const pack = new THREE.Group();
-    pack.scale.setScalar(female ? 0.92 : 1.04);
+    pack.scale.setScalar(female ? 0.9 : 1.04);
     upper.add(pack);
-
     const packBody = new THREE.Mesh(g.packBody, packMat);
-    packBody.position.set(0, 0.22, -0.27);
+    packBody.position.set(0, 0.22, -0.26);
     packBody.castShadow = true;
     pack.add(packBody);
-
     const packLid = new THREE.Mesh(g.packLid, packMat);
-    packLid.position.set(0, 0.42, -0.26);
+    packLid.position.set(0, 0.4, -0.25);
     packLid.castShadow = true;
     pack.add(packLid);
-
-    const packPocket = new THREE.Mesh(g.packPocket, packMat);
-    packPocket.position.set(0, 0.13, -0.385);
-    packPocket.castShadow = true;
-    pack.add(packPocket);
-
-    // compression straps across the pack body
-    for (const sy of [0.32, 0.12]) {
-      const band = new THREE.Mesh(g.strap, strapMat);
-      band.scale.set(5.6, 0.12, 1.2);
-      band.position.set(0, sy, -0.38);
-      pack.add(band);
-    }
-
-    // shoulder straps running over the shoulders to the front of the chest
-    for (const sx of [-0.13, 0.13]) {
+    for (const sx of [-0.12, 0.12]) {
       const strap = new THREE.Mesh(g.strap, strapMat);
-      strap.position.set(sx, 0.24, 0.14);
+      strap.position.set(sx, 0.24, 0.13);
       strap.rotation.x = -0.18;
       strap.castShadow = true;
       pack.add(strap);
     }
 
-    // bare shoulders (sleeveless top)
+    // shoulder caps (deltoids) where the arms meet the torso
     for (const sx of [-B.shoulderX, B.shoulderX]) {
-      const sh = new THREE.Mesh(g.shoulder, skin);
-      sh.position.set(sx, 0.46, 0);
+      const sh = new THREE.Mesh(g.shoulderBall, skin);
+      sh.position.set(sx, 0.45, 0);
       sh.scale.setScalar(B.arm);
       sh.castShadow = true;
       upper.add(sh);
     }
 
-    // legs: men wear shorts (bare shins + trainers); women wear full leggings
-    // (covered shins + bare feet).
+    // legs: men wear shorts (bare shins + trainers); women wear leggings
+    // (covered shins + minimal shoes)
     const legParts = female
-      ? { thigh: bottom, shin: bottom, foot: skin, ankle: skin, sole: soleMat, midsole: midsoleMat, accent: top, isShoe: false }
-      : { thigh: bottom, shin: skin, foot: shoe, ankle: skin, sole: soleMat, midsole: midsoleMat, accent: top, isShoe: true };
+      ? { thigh: bottom, shin: bottom, kneeMat: bottom, foot: bottom, shoe: bottom, midsole: midsoleMat, isShoe: false }
+      : { thigh: bottom, shin: skin, kneeMat: skin, foot: shoe, shoe, midsole: midsoleMat, isShoe: true };
     this.legL = this._makeLeg(g, legParts, -0.1);
     this.legR = this._makeLeg(g, legParts, 0.1);
     this.armL = this._makeArm(g, skin, upper, -0.22 - B.shoulderX * 0.05, B.arm);
@@ -320,73 +254,62 @@ export class NPC {
     this.bob = Math.random() * Math.PI * 2;
   }
 
+  // a low-poly leg: tapered thigh/shin bones capped by sphere joints
   _makeLeg(g, parts, x) {
     const hip = new THREE.Group();
     hip.position.set(x, 0.92, 0);
+    const hipJoint = new THREE.Mesh(g.joint, parts.thigh);
+    hipJoint.scale.setScalar(1.2);
+    hip.add(hipJoint);
     const thigh = new THREE.Mesh(g.thigh, parts.thigh);
     thigh.position.y = -0.23;
     thigh.castShadow = true;
     hip.add(thigh);
+
     const knee = new THREE.Group();
     knee.position.y = -0.46;
     hip.add(knee);
-    const kneeCap = new THREE.Mesh(g.kneeCap, parts.shin);
-    kneeCap.position.set(0, 0.0, 0.015);
-    kneeCap.scale.set(0.92, 0.85, 0.95);
-    kneeCap.castShadow = true;
-    knee.add(kneeCap);
+    const kneeJoint = new THREE.Mesh(g.joint, parts.kneeMat);
+    kneeJoint.scale.setScalar(0.95);
+    kneeJoint.castShadow = true;
+    knee.add(kneeJoint);
     const shin = new THREE.Mesh(g.shin, parts.shin);
     shin.position.y = -0.22;
     shin.castShadow = true;
     knee.add(shin);
-    // calf bulge at the back of the lower leg
-    const calf = new THREE.Mesh(g.calf, parts.shin);
-    calf.position.set(0, -0.13, -0.035);
-    calf.scale.set(0.92, 1.15, 0.85);
-    calf.castShadow = true;
-    knee.add(calf);
+
     const ankle = new THREE.Group();
     ankle.position.y = -0.44;
     knee.add(ankle);
-
-    const ab = new THREE.Mesh(g.ankleBall, parts.ankle);
-    ab.scale.set(0.85, 0.85, 0.85);
-    ankle.add(ab);
+    const ankleJoint = new THREE.Mesh(g.joint, parts.shin);
+    ankleJoint.scale.setScalar(0.62);
+    ankle.add(ankleJoint);
     this._makeFoot(g, parts, ankle);
     this.group.add(hip);
     return { hip, knee, ankle };
   }
 
-  // a proper foot: a trainer (heel cup, instep, toe cap on a white midsole) for
-  // men, or a bare foot (heel, arch, rounded toes) for women.
+  // a clean stylized shoe/boot: a sole block with a rounded toe (men get a
+  // white midsole; women's leggings carry into a minimal dark shoe)
   _makeFoot(g, parts, ankle) {
-    const add = (geo, m, pos, scale, rot) => {
-      const mesh = new THREE.Mesh(geo, m);
-      mesh.position.set(pos[0], pos[1], pos[2]);
-      if (scale) mesh.scale.set(scale[0], scale[1], scale[2]);
-      if (rot) mesh.rotation.set(rot[0], rot[1], rot[2]);
-      mesh.castShadow = true;
-      ankle.add(mesh);
-      return mesh;
-    };
-
+    const footMat = parts.shoe;
+    const sole = new THREE.Mesh(g.footSole, footMat);
+    sole.position.set(0, 0.0, 0.07);
+    sole.castShadow = true;
+    ankle.add(sole);
+    const toe = new THREE.Mesh(g.footToe, footMat);
+    toe.position.set(0, -0.005, 0.21);
+    toe.scale.set(1.0, 0.82, 1.05);
+    toe.castShadow = true;
+    ankle.add(toe);
     if (parts.isShoe) {
-      add(g.midsole, parts.midsole, [0, 0.028, 0.07], [1, 1, 1]); // white midsole
-      add(g.sole, parts.sole, [0, 0.0, 0.07], [0.96, 1, 0.98]); // dark tread
-      // coloured upper: heel cup, instep and toe cap
-      add(g.heelCup, parts.foot, [0, 0.075, -0.05], [1.05, 1.1, 1.0]);
-      add(g.foot, parts.foot, [0, 0.085, 0.085], [1.05, 0.85, 1.0], [Math.PI / 2, 0, 0]);
-      add(g.toeCap, parts.foot, [0, 0.06, 0.21], [1.05, 0.78, 1.05]);
-      // laces strip on the instep
-      for (const lz of [0.04, 0.1, 0.16]) add(g.lace, parts.midsole, [0, 0.12, lz], [1, 1, 1]);
-    } else {
-      // bare foot: heel ball, instep arch and a rounded set of toes
-      add(g.heelCup, parts.foot, [0, 0.05, -0.04], [1.0, 1.05, 1.0]);
-      add(g.foot, parts.foot, [0, 0.045, 0.07], [1.0, 0.62, 1.0], [Math.PI / 2, 0, 0]);
-      add(g.toesBare, parts.foot, [0, 0.035, 0.2], [1.1, 0.6, 0.8]);
+      const midsole = new THREE.Mesh(g.midsole, parts.midsole);
+      midsole.position.set(0, -0.04, 0.08);
+      ankle.add(midsole);
     }
   }
 
+  // a low-poly arm: tapered upper/fore-arm bones, sphere elbow, rounded hand
   _makeArm(g, mat, upper, x, thick = 1) {
     const sh = new THREE.Group();
     sh.position.set(x, 0.46, 0);
@@ -396,11 +319,12 @@ export class NPC {
     ua.scale.set(thick, 1, thick);
     ua.castShadow = true;
     sh.add(ua);
+
     const el = new THREE.Group();
     el.position.y = -0.34;
     sh.add(el);
-    const elbow = new THREE.Mesh(g.elbowBall, mat);
-    elbow.scale.set(thick, 0.95, thick);
+    const elbow = new THREE.Mesh(g.joint, mat);
+    elbow.scale.setScalar(thick * 0.8);
     elbow.castShadow = true;
     el.add(elbow);
     const fa = new THREE.Mesh(g.foreArm, mat);
@@ -408,20 +332,11 @@ export class NPC {
     fa.scale.set(thick, 1, thick);
     fa.castShadow = true;
     el.add(fa);
-    const palm = new THREE.Mesh(g.palm, mat);
-    palm.position.y = -0.32;
-    palm.castShadow = true;
-    el.add(palm);
-    const fingers = new THREE.Mesh(g.fingers, mat);
-    fingers.position.set(0, -0.4, 0.005);
-    fingers.scale.set(1.6, 1, 0.9);
-    fingers.castShadow = true;
-    el.add(fingers);
-    const thumb = new THREE.Mesh(g.thumb, mat);
-    thumb.position.set(x < 0 ? 0.045 : -0.045, -0.33, 0.015);
-    thumb.rotation.z = x < 0 ? -0.6 : 0.6;
-    thumb.castShadow = true;
-    el.add(thumb);
+    const hand = new THREE.Mesh(g.hand, mat);
+    hand.position.y = -0.35;
+    hand.scale.set(thick, 1.05, thick * 0.8);
+    hand.castShadow = true;
+    el.add(hand);
     return { shoulder: sh, elbow: el };
   }
 
