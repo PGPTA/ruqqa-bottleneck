@@ -42,12 +42,15 @@ export function buildEquipmentMesh(type, color) {
     g.add(c);
     return c;
   };
-  // a loaded barbell laid along X at height y, centred at (0,y,z)
+  // a loaded barbell laid along X at height y, centred at (0,y,z): steel bar,
+  // a coloured bumper plate and a smaller change plate on each sleeve
   const barbell = (y, z, halfLen = 0.9) => {
-    cyl(0.035, halfLen * 2 + 0.5, steel, [0, y, z], [0, 0, Math.PI / 2]);
+    cyl(0.034, halfLen * 2 + 0.55, steel, [0, y, z], [0, 0, Math.PI / 2]);
     for (const sx of [-1, 1]) {
-      cyl(0.22, 0.06, plate, [sx * halfLen, y, z], [0, 0, Math.PI / 2]);
-      cyl(0.18, 0.05, plate, [sx * (halfLen + 0.08), y, z], [0, 0, Math.PI / 2]);
+      cyl(0.235, 0.07, accent, [sx * halfLen, y, z], [0, 0, Math.PI / 2]); // bumper plate
+      cyl(0.235, 0.055, plate, [sx * halfLen, y, z], [0, 0, Math.PI / 2], 0.21); // hub face
+      cyl(0.17, 0.05, plate, [sx * (halfLen + 0.09), y, z], [0, 0, Math.PI / 2]); // change plate
+      cyl(0.06, 0.1, steel, [sx * (halfLen + 0.16), y, z], [0, 0, Math.PI / 2]); // collar
     }
   };
 
@@ -248,13 +251,14 @@ export function buildEquipmentMesh(type, color) {
       border.position.z = zd / 2 - 0.05;
       const border2 = box(zw, 0.05, 0.1, dark, 0.03);
       border2.position.z = -zd / 2 + 0.05;
+      const chevMat = mat(color, { emissive: color, emissiveIntensity: 0.35, roughness: 0.5 });
       for (let r = 0; r < 5; r++) {
         const z = -3.2 + r * 1.6;
-        const a = box(1.0, 0.05, 0.16, accent, 0.045);
-        a.position.set(-0.5, 0, z);
+        const a = box(1.1, 0.06, 0.2, chevMat, 0.05);
+        a.position.set(-0.52, 0, z);
         a.rotation.y = 0.6;
-        const b = box(1.0, 0.05, 0.16, accent, 0.045);
-        b.position.set(0.5, 0, z);
+        const b = box(1.1, 0.06, 0.2, chevMat, 0.05);
+        b.position.set(0.52, 0, z);
         b.rotation.y = -0.6;
       }
       break;

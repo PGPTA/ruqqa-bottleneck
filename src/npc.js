@@ -62,14 +62,18 @@ function getShared() {
       pelvis: new THREE.SphereGeometry(0.18, 16, 12),
       bust: new THREE.SphereGeometry(0.072, 12, 10),
       shoulder: new THREE.SphereGeometry(0.095, 14, 12),
-      thigh: new THREE.CapsuleGeometry(0.1, 0.3, 8, 14),
-      shin: new THREE.CapsuleGeometry(0.082, 0.3, 8, 14),
+      thigh: new THREE.CapsuleGeometry(0.105, 0.3, 10, 16),
+      shin: new THREE.CapsuleGeometry(0.08, 0.3, 10, 16),
+      calf: new THREE.SphereGeometry(0.085, 12, 10),
+      kneeCap: new THREE.SphereGeometry(0.082, 12, 10),
       ankleBall: new THREE.SphereGeometry(0.068, 10, 8),
       foot: new THREE.CapsuleGeometry(0.062, 0.17, 6, 12), // rounded heel→toe
       sole: new THREE.BoxGeometry(0.135, 0.05, 0.32),
-      upperArm: new THREE.CapsuleGeometry(0.068, 0.2, 8, 14),
-      foreArm: new THREE.CapsuleGeometry(0.057, 0.2, 8, 14),
-      palm: new THREE.BoxGeometry(0.075, 0.12, 0.045),
+      upperArm: new THREE.CapsuleGeometry(0.07, 0.2, 10, 16),
+      foreArm: new THREE.CapsuleGeometry(0.055, 0.2, 10, 16),
+      elbowBall: new THREE.SphereGeometry(0.062, 12, 10),
+      palm: new THREE.BoxGeometry(0.075, 0.11, 0.045),
+      fingers: new THREE.CapsuleGeometry(0.036, 0.06, 4, 10),
       packBody: new THREE.BoxGeometry(0.34, 0.46, 0.2),
       packLid: new THREE.BoxGeometry(0.32, 0.16, 0.18),
       packPocket: new THREE.BoxGeometry(0.22, 0.22, 0.1),
@@ -96,10 +100,10 @@ export class NPC {
     this.group.scale.setScalar(B.height);
 
     // materials: natural skin, wave-coloured top, dark bottoms, grey shoes, hair
-    const skin = new THREE.MeshStandardMaterial({ color: SKIN_TONES[(Math.random() * SKIN_TONES.length) | 0], roughness: 0.8, metalness: 0 });
-    const top = new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.06 });
-    const bottom = new THREE.MeshStandardMaterial({ color: BOTTOM_COLOR, roughness: 0.82, metalness: 0.02 });
-    const shoe = new THREE.MeshStandardMaterial({ color: SHOE_COLOR, roughness: 0.55, metalness: 0.1 });
+    const skin = new THREE.MeshStandardMaterial({ color: SKIN_TONES[(Math.random() * SKIN_TONES.length) | 0], roughness: 0.62, metalness: 0 });
+    const top = new THREE.MeshStandardMaterial({ color, roughness: 0.62, metalness: 0.04 });
+    const bottom = new THREE.MeshStandardMaterial({ color: BOTTOM_COLOR, roughness: 0.78, metalness: 0.02 });
+    const shoe = new THREE.MeshStandardMaterial({ color: SHOE_COLOR, roughness: 0.5, metalness: 0.12 });
     const soleMat = new THREE.MeshStandardMaterial({ color: 0x111316, roughness: 0.7, metalness: 0.05 });
     const hairMat = new THREE.MeshStandardMaterial({ color: HAIR_TONES[(Math.random() * HAIR_TONES.length) | 0], roughness: 0.9 });
     const packCol = PACK_COLORS[(Math.random() * PACK_COLORS.length) | 0];
@@ -142,7 +146,21 @@ export class NPC {
         bust.scale.set(1, 0.85, 0.8);
         upper.add(bust);
       }
+    } else {
+      // subtle pectorals for a more athletic male chest
+      for (const sx of [-0.085, 0.085]) {
+        const pec = new THREE.Mesh(g.bust, top);
+        pec.position.set(sx, 0.32, 0.12);
+        pec.scale.set(1.25, 0.7, 0.7);
+        upper.add(pec);
+      }
     }
+
+    // trapezius blending the neck into the shoulders
+    const traps = new THREE.Mesh(g.bust, top);
+    traps.position.set(0, 0.45, -0.04);
+    traps.scale.set(B.torsoW * 2.2, 0.9, 1.3);
+    upper.add(traps);
 
     const neck = new THREE.Mesh(g.neck, skin);
     neck.position.set(0, 0.5, 0.01);
@@ -305,10 +323,21 @@ export class NPC {
     const knee = new THREE.Group();
     knee.position.y = -0.46;
     hip.add(knee);
+    const kneeCap = new THREE.Mesh(g.kneeCap, parts.shin);
+    kneeCap.position.set(0, 0.0, 0.015);
+    kneeCap.scale.set(0.92, 0.85, 0.95);
+    kneeCap.castShadow = true;
+    knee.add(kneeCap);
     const shin = new THREE.Mesh(g.shin, parts.shin);
     shin.position.y = -0.22;
     shin.castShadow = true;
     knee.add(shin);
+    // calf bulge at the back of the lower leg
+    const calf = new THREE.Mesh(g.calf, parts.shin);
+    calf.position.set(0, -0.13, -0.035);
+    calf.scale.set(0.92, 1.15, 0.85);
+    calf.castShadow = true;
+    knee.add(calf);
     const ankle = new THREE.Group();
     ankle.position.y = -0.44;
     knee.add(ankle);
@@ -344,18 +373,27 @@ export class NPC {
     const el = new THREE.Group();
     el.position.y = -0.34;
     sh.add(el);
+    const elbow = new THREE.Mesh(g.elbowBall, mat);
+    elbow.scale.set(thick, 0.95, thick);
+    elbow.castShadow = true;
+    el.add(elbow);
     const fa = new THREE.Mesh(g.foreArm, mat);
     fa.position.y = -0.16;
     fa.scale.set(thick, 1, thick);
     fa.castShadow = true;
     el.add(fa);
     const palm = new THREE.Mesh(g.palm, mat);
-    palm.position.y = -0.33;
+    palm.position.y = -0.32;
     palm.castShadow = true;
     el.add(palm);
+    const fingers = new THREE.Mesh(g.fingers, mat);
+    fingers.position.set(0, -0.4, 0.005);
+    fingers.scale.set(1.6, 1, 0.9);
+    fingers.castShadow = true;
+    el.add(fingers);
     const thumb = new THREE.Mesh(g.thumb, mat);
-    thumb.position.set(x < 0 ? 0.04 : -0.04, -0.31, 0.02);
-    thumb.rotation.z = x < 0 ? -0.5 : 0.5;
+    thumb.position.set(x < 0 ? 0.045 : -0.045, -0.33, 0.015);
+    thumb.rotation.z = x < 0 ? -0.6 : 0.6;
     thumb.castShadow = true;
     el.add(thumb);
     return { shoulder: sh, elbow: el };
@@ -505,15 +543,18 @@ export class NPC {
     };
   }
 
-  // squats with a bar across the shoulders
+  // back squats with a bar across the shoulders: controlled tempo, hips drive
+  // back and the torso leans as the lifter descends
   _poseSquat(t) {
-    const down = Math.sin(t * 2.4 + this.bob) * 0.5 + 0.5;
+    const raw = Math.sin(t * 2.2 + this.bob) * 0.5 + 0.5;
+    const down = raw * raw * (3 - 2 * raw); // smoothstep for a controlled tempo
     return {
-      hipL: -down * 1.0, hipR: -down * 1.0,
-      kneeL: -down * 1.5 - 0.1, kneeR: -down * 1.5 - 0.1,
-      ankL: down * 0.5 + 0.05, ankR: down * 0.5 + 0.05,
-      shLx: -2.5, shRx: -2.5, elL: -1.5, elR: -1.5, shLz: 0.3, shRz: -0.3,
-      upx: 0.12 + down * 0.25, rootY: -down * 0.34,
+      hipL: -down * 1.15, hipR: -down * 1.15,
+      kneeL: -down * 1.55 - 0.1, kneeR: -down * 1.55 - 0.1,
+      ankL: down * 0.45 + 0.05, ankR: down * 0.45 + 0.05,
+      // hands grip the bar high on the back, elbows tucked under
+      shLx: -2.55, shRx: -2.55, elL: -1.75, elR: -1.75, shLz: 0.42, shRz: -0.42,
+      upx: 0.1 + down * 0.32, rootY: -down * 0.4,
     };
   }
 
@@ -581,17 +622,19 @@ export class NPC {
     };
   }
 
-  // versa climber: alternating arm/leg climb
+  // versa climber: opposite arm and leg drive together, with a slight torso
+  // twist as the body climbs
   _poseClimb(t) {
-    const s = Math.sin(t * 6 + this.bob);
+    const s = Math.sin(t * 5.5 + this.bob);
+    const c = Math.cos(t * 5.5 + this.bob);
     return {
-      shLx: -2.35 + s * 0.7, shRx: -2.35 - s * 0.7,
-      elL: -0.5 + Math.max(0, s) * 0.7, elR: -0.5 + Math.max(0, -s) * 0.7,
-      shLz: 0.12, shRz: -0.12,
-      hipL: -s * 0.5, hipR: s * 0.5,
-      kneeL: -Math.max(0, -s) * 1.0 - 0.1, kneeR: -Math.max(0, s) * 1.0 - 0.1,
-      ankL: Math.max(0, -s) * 0.4 + 0.05, ankR: Math.max(0, s) * 0.4 + 0.05,
-      upx: 0.14, rootY: (s * 0.5 + 0.5) * 0.06,
+      shLx: -2.45 + s * 0.85, shRx: -2.45 - s * 0.85,
+      elL: -0.45 + Math.max(0, s) * 0.85, elR: -0.45 + Math.max(0, -s) * 0.85,
+      shLz: 0.1, shRz: -0.1,
+      hipL: -s * 0.7, hipR: s * 0.7,
+      kneeL: -Math.max(0, -s) * 1.25 - 0.1, kneeR: -Math.max(0, s) * 1.25 - 0.1,
+      ankL: Math.max(0, -s) * 0.45 + 0.05, ankR: Math.max(0, s) * 0.45 + 0.05,
+      upx: 0.16, upy: c * 0.08, rootY: (s * 0.5 + 0.5) * 0.07,
     };
   }
 
@@ -621,32 +664,34 @@ export class NPC {
     };
   }
 
-  // walking lunges: alternate deep forward lunges, dipping the body down
+  // walking lunges: alternate deep forward lunges, dipping the body down,
+  // with a natural opposite-arm swing and tall chest
   _poseLunge(t) {
     const s = Math.sin(t * 2.2 + this.bob);
     const fwd = Math.max(0, s);
     const bwd = Math.max(0, -s);
     return {
-      hipL: -fwd * 0.95 + bwd * 0.55, hipR: -bwd * 0.95 + fwd * 0.55,
-      kneeL: -fwd * 1.25 - 0.1 - bwd * 0.35, kneeR: -bwd * 1.25 - 0.1 - fwd * 0.35,
+      hipL: -fwd * 1.0 + bwd * 0.55, hipR: -bwd * 1.0 + fwd * 0.55,
+      kneeL: -fwd * 1.35 - 0.1 - bwd * 0.4, kneeR: -bwd * 1.35 - 0.1 - fwd * 0.4,
       ankL: 0.12, ankR: 0.12,
-      shLx: 0.05, shRx: 0.05, elL: -0.25, elR: -0.25, shLz: 0.22, shRz: -0.22,
-      upx: 0.05, rootY: -Math.abs(s) * 0.24,
+      shLx: s * 0.5, shRx: -s * 0.5, elL: -0.55, elR: -0.55, shLz: 0.18, shRz: -0.18,
+      upx: 0.08, upy: s * 0.06, rootY: -Math.abs(s) * 0.28,
     };
   }
 
-  // elephant walk: bent over at the waist, near-straight legs, hands to the floor
+  // elephant walk: bent over at the waist, near-straight legs, hands tracking
+  // the floor as opposite hand and foot advance
   _poseElephant(t) {
     const p = t * 2.6 + this.bob;
     const sL = Math.sin(p);
     const sR = Math.sin(p + Math.PI);
     return {
-      upx: -1.15,
-      hipL: sL * 0.4, hipR: sR * 0.4,
-      kneeL: -0.1 - Math.max(0, sL) * 0.25, kneeR: -0.1 - Math.max(0, sR) * 0.25,
+      upx: -1.2, upy: sL * 0.07,
+      hipL: sL * 0.45, hipR: sR * 0.45,
+      kneeL: -0.08 - Math.max(0, sL) * 0.3, kneeR: -0.08 - Math.max(0, sR) * 0.3,
       ankL: 0.1, ankR: 0.1,
-      shLx: -1.6 + sR * 0.3, shRx: -1.6 + sL * 0.3, elL: -0.12, elR: -0.12,
-      shLz: 0.06, shRz: -0.06,
+      shLx: -1.55 + sR * 0.45, shRx: -1.55 + sL * 0.45, elL: -0.1, elR: -0.1,
+      shLz: 0.05, shRz: -0.05,
     };
   }
 
