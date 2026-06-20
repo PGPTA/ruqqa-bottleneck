@@ -88,21 +88,38 @@ export function buildEquipmentMesh(type, color) {
       break;
     }
     case 'versaClimber': {
-      box(0.95, 0.16, 1.3, dark, 0.08).position.z = 0.05; // base plate
-      cyl(0.09, 2.95, steel, [-0.14, 1.47, -0.22], [0.06, 0, 0]); // twin rails
-      cyl(0.09, 2.95, steel, [0.14, 1.47, -0.22], [0.06, 0, 0]);
-      box(0.46, 0.3, 0.16, dark, 2.78).position.z = -0.35; // console mount
-      box(0.4, 0.26, 0.04, screen, 2.78).position.z = -0.26; // console screen
-      box(0.42, 0.1, 0.44, accent, 0.55).position.set(-0.3, 0, 0.16); // pedals
-      box(0.42, 0.1, 0.44, accent, 0.9).position.set(0.3, 0, 0.16);
-      cyl(0.03, 0.5, steel, [-0.34, 2.0, 0.02], [0, 0, 0.5]); // angled grips
-      cyl(0.03, 0.5, steel, [0.34, 2.3, 0.02], [0, 0, -0.5]);
+      box(1.0, 0.16, 1.35, dark, 0.08).position.z = 0.0; // base plate
+      box(0.7, 0.06, 0.9, plate, 0.17).position.z = 0.18; // foot platform
+      // single sturdy central mast (twin-tube)
+      cyl(0.07, 3.0, steel, [-0.1, 1.5, -0.28], [0.05, 0, 0]);
+      cyl(0.07, 3.0, steel, [0.1, 1.5, -0.28], [0.05, 0, 0]);
+      box(0.34, 3.0, 0.06, steel, 1.5).position.z = -0.28; // web between tubes
+      box(0.5, 0.34, 0.18, dark, 2.85).position.z = -0.42; // console housing
+      box(0.42, 0.28, 0.04, screen, 2.85).position.z = -0.32; // console screen
+      // foot pedals with toe straps, staggered for the climbing pose
+      const ped1 = box(0.24, 0.08, 0.4, accent, 0.5); ped1.position.set(-0.22, 0, 0.18);
+      const ped2 = box(0.24, 0.08, 0.4, accent, 0.85); ped2.position.set(0.22, 0, 0.18);
+      cyl(0.02, 0.26, dark, [-0.22, 0.58, 0.2], [0, 0, Math.PI / 2]); // toe straps
+      cyl(0.02, 0.26, dark, [0.22, 0.93, 0.2], [0, 0, Math.PI / 2]);
+      // alternating hand grips on the rails
+      for (const [hx, hy] of [[-0.26, 1.65], [0.26, 1.95]]) {
+        cyl(0.028, 0.22, steel, [hx, hy, 0.0], [Math.PI / 2, 0, 0]);
+        cyl(0.04, 0.12, accent, [hx, hy, 0.08], [Math.PI / 2, 0, 0]); // grip handle
+      }
       break;
     }
     case 'boxStep': {
-      box(0.86, 0.5, 0.86, dark, 0.25); // box body
-      box(0.9, 0.05, 0.9, accent, 0.52); // top tread
-      box(0.86, 0.04, 0.04, accent, 0.16).position.z = 0.43; // front stripe
+      // sturdy plyo box: tapered body, grippy top tread and side handle cut-outs
+      box(0.9, 0.1, 0.9, dark, 0.05); // foot
+      box(0.84, 0.42, 0.84, steel, 0.31); // body
+      box(0.9, 0.06, 0.9, accent, 0.55); // top tread
+      box(0.78, 0.02, 0.78, screen, 0.585); // grippy inset surface
+      // side handle slots (dark recesses)
+      for (const [hx, hz, ry] of [[0, 0.43, 0], [0, -0.43, 0], [0.43, 0, Math.PI / 2], [-0.43, 0, Math.PI / 2]]) {
+        const h = box(0.32, 0.07, 0.04, plate, 0.4);
+        h.position.set(hx, 0.4, hz);
+        h.rotation.y = ry;
+      }
       break;
     }
     case 'crawl': {
@@ -128,12 +145,20 @@ export function buildEquipmentMesh(type, color) {
       break;
     }
     case 'bench': {
-      box(0.4, 0.45, 0.12, steel, 0.22).position.z = 0.78; // legs
-      box(0.4, 0.45, 0.12, steel, 0.22).position.z = -0.78;
-      box(0.5, 0.14, 1.6, accent, 0.5); // pad
-      cyl(0.06, 0.7, steel, [-0.42, 0.35, -0.78]); // rack uprights
-      cyl(0.06, 0.7, steel, [0.42, 0.35, -0.78]);
-      barbell(0.78, -0.78, 0.78);
+      // "Bench Squat" station: a compact squat stand with the bar racked at
+      // shoulder height (matches the squatting animation).
+      box(0.55, 0.12, 1.4, dark, 0.06).position.set(-0.62, 0, 0); // base feet
+      box(0.55, 0.12, 1.4, dark, 0.06).position.set(0.62, 0, 0);
+      cyl(0.06, 1.55, steel, [-0.62, 0.78, 0]); // uprights
+      cyl(0.06, 1.55, steel, [0.62, 0.78, 0]);
+      box(0.14, 0.18, 0.14, accent, 1.45).position.set(-0.62, 0, 0.1); // J-hooks
+      box(0.14, 0.18, 0.14, accent, 1.45).position.set(0.62, 0, 0.1);
+      // safety spotter arms reaching forward
+      box(0.06, 0.06, 0.7, steel, 1.05).position.set(-0.62, 0, 0.35);
+      box(0.06, 0.06, 0.7, steel, 1.05).position.set(0.62, 0, 0.35);
+      cyl(0.05, 0.4, dark, [-0.62, 0.4, 0], [Math.PI / 2, 0, 0]); // base weight storage pegs
+      cyl(0.05, 0.4, dark, [0.62, 0.4, 0], [Math.PI / 2, 0, 0]);
+      barbell(1.45, 0.12, 0.78); // racked bar at shoulder height
       break;
     }
     case 'legPress': {
@@ -198,19 +223,33 @@ export function buildEquipmentMesh(type, color) {
       for (let i = 1; i < 4; i++) box(0.03, 0.07, 4, dark, 0.035).position.x = -2.5 + i * 1.25;
       break;
     }
+    case 'hangBar': {
+      box(0.55, 0.14, 1.2, dark, 0.07).position.x = -0.75; // base feet
+      box(0.55, 0.14, 1.2, dark, 0.07).position.x = 0.75;
+      cyl(0.065, 2.3, steel, [-0.75, 1.15, 0]); // uprights
+      cyl(0.065, 2.3, steel, [0.75, 1.15, 0]);
+      // angled support braces back to the base
+      cyl(0.04, 0.9, steel, [-0.75, 0.5, -0.45], [0.6, 0, 0]);
+      cyl(0.04, 0.9, steel, [0.75, 0.5, -0.45], [0.6, 0, 0]);
+      box(1.7, 0.1, 0.1, steel, 2.28); // top crossbeam
+      cyl(0.035, 1.5, accent, [0, 2.2, 0.12], [0, 0, Math.PI / 2]); // knurled hang bar
+      // knurl bands on the bar
+      for (const bx of [-0.4, 0.4]) cyl(0.045, 0.12, dark, [bx, 2.2, 0.12], [0, 0, Math.PI / 2]);
+      break;
+    }
     case 'walkingLunge':
     case 'elephantWalk': {
       // an open floor zone with direction chevrons pointing the way (+z)
-      const zw = 7.8;
-      const zd = 6.8;
+      const zw = 6;
+      const zd = 8.4;
       const zonePad = box(zw, 0.04, zd, mat(color, { roughness: 0.97 }), 0.02);
       zonePad.receiveShadow = true;
       const border = box(zw, 0.05, 0.1, dark, 0.03);
       border.position.z = zd / 2 - 0.05;
       const border2 = box(zw, 0.05, 0.1, dark, 0.03);
       border2.position.z = -zd / 2 + 0.05;
-      for (let r = 0; r < 4; r++) {
-        const z = -2.4 + r * 1.6;
+      for (let r = 0; r < 5; r++) {
+        const z = -3.2 + r * 1.6;
         const a = box(1.0, 0.05, 0.16, accent, 0.045);
         a.position.set(-0.5, 0, z);
         a.rotation.y = 0.6;
@@ -237,10 +276,13 @@ export function computeStationGeometry(type, pos, facing, capacity) {
   // open movement zones: lay people out in a centred grid on the floor
   if (EQUIPMENT_TYPES[type]?.isZone) {
     const perp = { x: -f.z, z: f.x };
-    const cols = Math.max(1, Math.ceil(Math.sqrt(capacity)));
-    const rows = Math.ceil(capacity / cols);
     const sx = 1.5;
     const sz = 1.6;
+    // limit columns so the grid fits across the (possibly narrow) gym width
+    const span = f.z !== 0 ? gym.width : gym.depth; // axis the grid spreads along
+    const maxCols = Math.max(1, Math.floor((span - 1) / sx));
+    const cols = Math.max(1, Math.min(Math.ceil(Math.sqrt(capacity)), maxCols));
+    const rows = Math.ceil(capacity / cols);
     for (let i = 0; i < capacity; i++) {
       const c = i % cols;
       const r = Math.floor(i / cols);

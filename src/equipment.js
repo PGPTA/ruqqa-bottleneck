@@ -13,11 +13,12 @@ export const EQUIPMENT_TYPES = {
   // around at each end. `capacity` = runners at once (parallel lanes).
   track: { label: 'Running Track', color: 0x5be0a0, capacity: 6, trackLength: 24, isTrack: true },
   squatRack: { label: 'Squat Rack', color: 0xff8a4f, capacity: 1 },
-  bench: { label: 'Bench Press', color: 0xffb84f, capacity: 1 },
+  bench: { label: 'Bench Squat', color: 0xffb84f, capacity: 1 },
   legPress: { label: 'Leg Press', color: 0xc06bff, capacity: 1 },
   cable: { label: 'Cable Machine', color: 0xff6bd1, capacity: 1 },
   latPull: { label: 'Lat Pulldown', color: 0x9b6bff, capacity: 1 },
-  boxStep: { label: 'Box Step', color: 0xff9b54, capacity: 1 },
+  boxStep: { label: 'Box Step-up', color: 0xff9b54, capacity: 1 },
+  hangBar: { label: 'Hang Bar', color: 0x9b6bff, capacity: 1 },
   crawl: { label: 'Crawl', color: 0x7fd14f, capacity: 3 },
   dumbbells: { label: 'Dumbbell Area', color: 0xffe14f, capacity: 4 },
   mats: { label: 'Functional Mats', color: 0x8fe04f, capacity: 6 },
@@ -39,29 +40,28 @@ function block(type, count, { x0, z0, cols, dx, dz, facing = [0, 1] }) {
   return out;
 }
 
-// A large training floor: blocks of 20 versa climbers, 20 box steps and 20
-// benches along the back, two 20-person movement zones (walking lunge and
-// elephant walk), and a running track across the front.
-// `entrance`/`exit` are the editable start and finish points.
+// Race layout in a narrow 7 m × 48 m corridor. Competitors start at the +z end
+// and shuttle between the versa climbers (100 m climb, done 5×) and the five
+// workout stations. Kit is packed into 3 columns (x = -2, 0, 2) down the
+// corridor. `entrance`/`exit` are the editable start and finish points.
 export const DEFAULT_LAYOUT = {
-  width: 66,
+  width: 7,
   depth: 48,
-  entrance: { x: -3, z: 22 },
-  exit: { x: 3, z: 22 },
+  entrance: { x: 0, z: 23 },
+  exit: { x: 0, z: -23 },
   stations: [
-    // 20 Versa Climbers (5 × 4)
-    ...block('versaClimber', 20, { x0: -31, z0: -21, cols: 5, dx: 2.8, dz: 3.4 }),
-    // 20 Box Steps (5 × 4)
-    ...block('boxStep', 20, { x0: -15, z0: -21, cols: 5, dx: 2.4, dz: 2.9 }),
-    // 20 Benches (5 × 4)
-    ...block('bench', 20, { x0: 1, z0: -21, cols: 5, dx: 2.7, dz: 3.3 }),
+    // 20 Versa Climbers — the climb, used five times per competitor
+    ...block('versaClimber', 20, { x0: -2, z0: 23, cols: 3, dx: 2, dz: -1.5 }),
+    // 12 Bench Squat
+    ...block('bench', 12, { x0: -2, z0: 12.5, cols: 3, dx: 2, dz: -1.7 }),
+    // 12 Box Step-up
+    ...block('boxStep', 12, { x0: -2, z0: 5.8, cols: 3, dx: 2, dz: -1.5 }),
+    // 12 Hang Bar
+    ...block('hangBar', 12, { x0: -2, z0: -0.3, cols: 3, dx: 2, dz: -1.7 }),
 
-    // Two 20-person movement zones
-    { type: 'walkingLunge', x: -18, z: 4, facing: [0, 1], capacity: 20 },
-    { type: 'elephantWalk', x: 4, z: 4, facing: [0, 1], capacity: 20 },
-
-    // Running track across the front (lap length 50 m)
-    { type: 'track', x: 0, z: 18, facing: [0, 1], trackLength: 50, capacity: 4 },
+    // Two 20-person movement zones, stacked toward the finish end
+    { type: 'walkingLunge', x: 0, z: -9, facing: [0, 1], capacity: 20 },
+    { type: 'elephantWalk', x: 0, z: -16, facing: [0, 1], capacity: 20 },
   ],
 };
 

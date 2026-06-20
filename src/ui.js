@@ -23,28 +23,21 @@ function fmtWait(sec) {
 
 export function initUI(sim) {
   // ---- default state ----
+  // Race format: 5 rounds of "100 m climb → 1 workout station", cycling through
+  // the five workout stations. Times are the per-station max (editable here).
+  const CLIMB = { type: 'versaClimber', minutes: 3 }; // 100 m climb
   let routines = {
-    'Full circuit': { name: 'Full circuit', steps: [
-      { type: 'versaClimber', minutes: 4 },
-      { type: 'bench', minutes: 4 },
-      { type: 'boxStep', minutes: 4 },
-      { type: 'walkingLunge', minutes: 3 },
-      { type: 'elephantWalk', minutes: 3 },
-      { type: 'track', distance: 400 },
-    ] },
-    'Climb & step': { name: 'Climb & step', steps: [
-      { type: 'versaClimber', minutes: 5 },
-      { type: 'boxStep', minutes: 5 },
-      { type: 'track', distance: 400 },
-    ] },
-    'Strength flow': { name: 'Strength flow', steps: [
-      { type: 'bench', minutes: 6 },
-      { type: 'walkingLunge', minutes: 4 },
-      { type: 'elephantWalk', minutes: 4 },
-    ] },
-    'Running club': { name: 'Running club', steps: [
-      { type: 'track', distance: 800 },
-      { type: 'walkingLunge', minutes: 4 },
+    Race: { name: 'Race', steps: [
+      { ...CLIMB },
+      { type: 'bench', minutes: 5 }, // Bench Squat (50 reps · 5 min max)
+      { ...CLIMB },
+      { type: 'elephantWalk', minutes: 5 }, // Elephant Walk (100 m · 5 min max)
+      { ...CLIMB },
+      { type: 'boxStep', minutes: 5 }, // Box Step-ups (50 reps · 5 min max)
+      { ...CLIMB },
+      { type: 'walkingLunge', minutes: 5 }, // Walking Lunge (100 m · 5 min max)
+      { ...CLIMB },
+      { type: 'hangBar', minutes: 2 }, // Hang Bar (unlimited)
     ] },
   };
 
@@ -52,10 +45,10 @@ export function initUI(sim) {
   // Race-style waves: each wave starts a set gap (minutes) AFTER the previous
   // one. The first wave's gap is measured from the race start (0:00).
   let waves = [
-    { id: ++waveSeq, gapMin: 0, count: 12, routineName: 'Full circuit', color: WAVE_COLORS[0] },
-    { id: ++waveSeq, gapMin: 2, count: 12, routineName: 'Full circuit', color: WAVE_COLORS[1] },
-    { id: ++waveSeq, gapMin: 2, count: 12, routineName: 'Full circuit', color: WAVE_COLORS[2] },
-    { id: ++waveSeq, gapMin: 2, count: 12, routineName: 'Full circuit', color: WAVE_COLORS[3] },
+    { id: ++waveSeq, gapMin: 0, count: 12, routineName: 'Race', color: WAVE_COLORS[0] },
+    { id: ++waveSeq, gapMin: 2, count: 12, routineName: 'Race', color: WAVE_COLORS[1] },
+    { id: ++waveSeq, gapMin: 2, count: 12, routineName: 'Race', color: WAVE_COLORS[2] },
+    { id: ++waveSeq, gapMin: 2, count: 12, routineName: 'Race', color: WAVE_COLORS[3] },
   ];
 
   // cumulative start time (in minutes) for each wave, given the gaps before it

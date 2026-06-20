@@ -3,10 +3,10 @@
 // Simulation reads these live.
 
 export const gym = {
-  width: 66,
+  width: 7,
   depth: 48,
-  entrance: { x: -3, z: 22 },
-  exit: { x: 3, z: 22 },
+  entrance: { x: 0, z: 23 },
+  exit: { x: 0, z: -23 },
 };
 
 // Sensible default marker positions for a given gym depth (door on +z wall).
@@ -26,4 +26,4 @@ export function clampToFloor(x, z, margin = FLOOR_MARGIN) {
   };
 }
 
-export const STORAGE_KEY = 'gymLayout.v6';
+export const STORAGE_KEY = 'gymLayout.v8';
