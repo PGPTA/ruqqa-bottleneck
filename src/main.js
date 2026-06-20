@@ -23,8 +23,9 @@ document.getElementById('app').appendChild(labelRenderer.domElement);
 
 // ---- scene + camera ----
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x050607);
-scene.fog = new THREE.Fog(0x050607, 50, 105);
+scene.background = new THREE.Color(0x222d3c);
+// fog pushed well out so the full gym layout stays clear at any zoom
+scene.fog = new THREE.Fog(0x222d3c, 110, 230);
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 500);
 camera.position.set(0, 34, 40);
@@ -38,8 +39,9 @@ controls.maxDistance = 90;
 controls.target.set(0, 0, 0);
 
 // ---- lights ----
-scene.add(new THREE.HemisphereLight(0x9fb4c8, 0x0a0c10, 0.55));
-const sun = new THREE.DirectionalLight(0xffe6c2, 1.0);
+scene.add(new THREE.HemisphereLight(0xc4d4e6, 0x35404f, 0.85));
+scene.add(new THREE.AmbientLight(0x6f7d90, 0.35));
+const sun = new THREE.DirectionalLight(0xffe6c2, 1.15);
 sun.position.set(20, 40, 25);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
