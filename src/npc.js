@@ -66,9 +66,15 @@ function getShared() {
       shin: new THREE.CapsuleGeometry(0.08, 0.3, 10, 16),
       calf: new THREE.SphereGeometry(0.085, 12, 10),
       kneeCap: new THREE.SphereGeometry(0.082, 12, 10),
-      ankleBall: new THREE.SphereGeometry(0.068, 10, 8),
+      ankleBall: new THREE.SphereGeometry(0.062, 12, 10),
       foot: new THREE.CapsuleGeometry(0.062, 0.17, 6, 12), // rounded heel→toe
       sole: new THREE.BoxGeometry(0.135, 0.05, 0.32),
+      midsole: new THREE.BoxGeometry(0.13, 0.055, 0.3),
+      shoeUpper: new THREE.SphereGeometry(0.075, 14, 12),
+      toeCap: new THREE.SphereGeometry(0.062, 14, 12),
+      heelCup: new THREE.SphereGeometry(0.064, 14, 12),
+      lace: new THREE.BoxGeometry(0.08, 0.018, 0.03),
+      toesBare: new THREE.SphereGeometry(0.055, 12, 10),
       upperArm: new THREE.CapsuleGeometry(0.07, 0.2, 10, 16),
       foreArm: new THREE.CapsuleGeometry(0.055, 0.2, 10, 16),
       elbowBall: new THREE.SphereGeometry(0.062, 12, 10),
@@ -105,12 +111,13 @@ export class NPC {
     const bottom = new THREE.MeshStandardMaterial({ color: BOTTOM_COLOR, roughness: 0.78, metalness: 0.02 });
     const shoe = new THREE.MeshStandardMaterial({ color: SHOE_COLOR, roughness: 0.5, metalness: 0.12 });
     const soleMat = new THREE.MeshStandardMaterial({ color: 0x111316, roughness: 0.7, metalness: 0.05 });
+    const midsoleMat = new THREE.MeshStandardMaterial({ color: 0xe7ebef, roughness: 0.55, metalness: 0.05 });
     const hairMat = new THREE.MeshStandardMaterial({ color: HAIR_TONES[(Math.random() * HAIR_TONES.length) | 0], roughness: 0.9 });
     const packCol = PACK_COLORS[(Math.random() * PACK_COLORS.length) | 0];
     const packMat = new THREE.MeshStandardMaterial({ color: packCol, roughness: 0.82, metalness: 0.08 });
     const strapMat = new THREE.MeshStandardMaterial({ color: 0x202327, roughness: 0.9, metalness: 0.05 });
     const eyeMat = new THREE.MeshStandardMaterial({ color: 0x16181c, roughness: 0.35, metalness: 0.1 });
-    this._mats = [skin, top, bottom, shoe, soleMat, hairMat, packMat, strapMat, eyeMat];
+    this._mats = [skin, top, bottom, shoe, soleMat, midsoleMat, hairMat, packMat, strapMat, eyeMat];
     this.bodyMat = top;
 
     // hips (clothed waistband) stay with the legs; upper body leans at the waist
@@ -284,8 +291,8 @@ export class NPC {
     // legs: men wear shorts (bare shins + trainers); women wear full leggings
     // (covered shins + bare feet).
     const legParts = female
-      ? { thigh: bottom, shin: bottom, foot: skin, ankle: skin, sole: soleMat, isShoe: false }
-      : { thigh: bottom, shin: skin, foot: shoe, ankle: skin, sole: soleMat, isShoe: true };
+      ? { thigh: bottom, shin: bottom, foot: skin, ankle: skin, sole: soleMat, midsole: midsoleMat, accent: top, isShoe: false }
+      : { thigh: bottom, shin: skin, foot: shoe, ankle: skin, sole: soleMat, midsole: midsoleMat, accent: top, isShoe: true };
     this.legL = this._makeLeg(g, legParts, -0.1);
     this.legR = this._makeLeg(g, legParts, 0.1);
     this.armL = this._makeArm(g, skin, upper, -0.22 - B.shoulderX * 0.05, B.arm);
@@ -343,22 +350,41 @@ export class NPC {
     knee.add(ankle);
 
     const ab = new THREE.Mesh(g.ankleBall, parts.ankle);
-    ab.scale.setScalar(0.7);
+    ab.scale.set(0.85, 0.85, 0.85);
     ankle.add(ab);
-    const foot = new THREE.Mesh(g.foot, parts.foot);
-    foot.rotation.x = Math.PI / 2;
-    foot.scale.set(1, 0.6, 1);
-    foot.position.set(0, parts.isShoe ? 0.065 : 0.025, 0.08);
-    foot.castShadow = true;
-    ankle.add(foot);
-    if (parts.isShoe) {
-      const sole = new THREE.Mesh(g.sole, parts.sole);
-      sole.position.set(0, 0.005, 0.07);
-      sole.castShadow = true;
-      ankle.add(sole);
-    }
+    this._makeFoot(g, parts, ankle);
     this.group.add(hip);
     return { hip, knee, ankle };
+  }
+
+  // a proper foot: a trainer (heel cup, instep, toe cap on a white midsole) for
+  // men, or a bare foot (heel, arch, rounded toes) for women.
+  _makeFoot(g, parts, ankle) {
+    const add = (geo, m, pos, scale, rot) => {
+      const mesh = new THREE.Mesh(geo, m);
+      mesh.position.set(pos[0], pos[1], pos[2]);
+      if (scale) mesh.scale.set(scale[0], scale[1], scale[2]);
+      if (rot) mesh.rotation.set(rot[0], rot[1], rot[2]);
+      mesh.castShadow = true;
+      ankle.add(mesh);
+      return mesh;
+    };
+
+    if (parts.isShoe) {
+      add(g.midsole, parts.midsole, [0, 0.028, 0.07], [1, 1, 1]); // white midsole
+      add(g.sole, parts.sole, [0, 0.0, 0.07], [0.96, 1, 0.98]); // dark tread
+      // coloured upper: heel cup, instep and toe cap
+      add(g.heelCup, parts.foot, [0, 0.075, -0.05], [1.05, 1.1, 1.0]);
+      add(g.foot, parts.foot, [0, 0.085, 0.085], [1.05, 0.85, 1.0], [Math.PI / 2, 0, 0]);
+      add(g.toeCap, parts.foot, [0, 0.06, 0.21], [1.05, 0.78, 1.05]);
+      // laces strip on the instep
+      for (const lz of [0.04, 0.1, 0.16]) add(g.lace, parts.midsole, [0, 0.12, lz], [1, 1, 1]);
+    } else {
+      // bare foot: heel ball, instep arch and a rounded set of toes
+      add(g.heelCup, parts.foot, [0, 0.05, -0.04], [1.0, 1.05, 1.0]);
+      add(g.foot, parts.foot, [0, 0.045, 0.07], [1.0, 0.62, 1.0], [Math.PI / 2, 0, 0]);
+      add(g.toesBare, parts.foot, [0, 0.035, 0.2], [1.1, 0.6, 0.8]);
+    }
   }
 
   _makeArm(g, mat, upper, x, thick = 1) {
@@ -484,8 +510,9 @@ export class NPC {
     return {
       hipL: sL * amp, hipR: sR * amp,
       kneeL: kL, kneeR: kR,
-      ankL: -sL * 0.35 - kL * 0.25 + 0.08,
-      ankR: -sR * 0.35 - kR * 0.25 + 0.08,
+      // heel strike on the forward swing, toe-off as the leg drives back
+      ankL: -sL * 0.4 - kL * 0.2 + Math.max(0, -sL) * 0.25 + 0.06,
+      ankR: -sR * 0.4 - kR * 0.2 + Math.max(0, -sR) * 0.25 + 0.06,
       shLx: sR * armAmp, shRx: sL * armAmp,
       shLz: 0.08, shRz: -0.08,
       elL: baseElb - Math.max(0, sR) * pump,
